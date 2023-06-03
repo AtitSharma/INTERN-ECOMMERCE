@@ -1,0 +1,65 @@
+{% extends  'base.html' %}
+{% load static %}
+{% block content %}
+{% for message in messages %}
+    <p style="text-align:center;">{{message}}</p>
+{% endfor %}
+
+
+
+<div class="row featured__filter">
+    
+    {% for cart in carts %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
+            <div class="featured__item">
+                <div class="featured__item__pic set-bg" id ='abcimage'data-setbg="{% if cart.product.image1 %}{{cart.product.image1.url}}{% endif %}">
+                    <ul class="featured__item__pic__hover">
+                        <li><a href="{% url 'product:add-wishlist' request.user.username cart.product.id %}"><i class="fa fa-heart"></i></a></li>
+                        <li><a href="{% url 'product:add_to_cart' cart.product.id %}"><i class="fa fa-shopping-cart"></i></a></li>
+                        <li><a href="#">👜</a></li>
+                        <li><a href="#" onclick="clicked({{cart.id}})">❌</a></li>
+                        
+                </ul>
+                </div>
+                <div class="featured__item__text">
+                    <h6><a href="#">Product Name : {{cart.product.name}}</a></h6>
+                    Description: {{cart.product.description}} <br>
+                    Seller: {{cart.product.user.username }}  <br>  
+                    Category:{{cart.product.category}}<br>  
+                    Quantity Available : {{cart.product.quantity}} <br>
+                    Quantity Available Added In Cart : {{cart.quantity}} <br>
+                    Status: {{cart.product.status}} <br>
+                    Price Choosen : {{ cart.total_price }}     
+                    <h5>Price: Rs.{{ cart.product.price }}</h5><br>
+                </div>
+                
+            </div>
+        </div>
+        
+        {% endfor %}
+</div>
+
+<script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'js/jquery.slicknav.js' %}"></script>
+<script src="{% static 'js/mixitup.min.js' %}"></script>
+<script src="{% static 'js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+
+<script>
+    
+    function clicked(cid) {
+        event.preventDefault();
+        if (confirm("Do you really want to delete the product from cart?")) {
+          var username = "{{ request.user.username }}";
+          var cid = cid;
+          var url = "/delete-cart/" + username + "/" + cid + "/";
+          window.location.href = url;
+        }
+      }
+            
+        
+</script>
+{% endblock content %}

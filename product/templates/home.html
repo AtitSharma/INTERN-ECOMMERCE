@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+        <!-- Hero Section Begin -->
+        <section class="hero hero-normal">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="hero__categories">
+                            <div class="hero__categories__all">
+                                <i class="fa fa-bars"></i>
+                                <span>All Categories </span>
+                            </div>
+                            <ul>
+                                {% for category in categories %}
+                                <li><a href="{% url 'product:shop' category.id %}">{{category}}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-9">
+                        <div class="hero__search">
+                            <div class="hero__search__form">
+                                <form action="#">
+                                    <input type="text" placeholder="What do yo u need?">
+                                    <button type="submit" class="site-btn">SEARCH</button>
+                                </form>
+                            </div>
+
+                            <div class="hero__search__phone">
+                                <div class="hero__search__phone__icon">
+                                    <i class="fa fa-phone"></i>
+                                </div>
+                                <div class="hero__search__phone__text">
+                                    <h5>+65 11.188.888</h5>
+                                    <span>support 24/7 time</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% for message in messages %}
+        <p style="text-align:center;">{{message}}</p>
+        {% endfor %}
+        <div class="row featured__filter">
+            {% for product in products %}
+            
+                <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
+                    <div class="featured__item" style="margin-left:200px;">
+                        
+                        <div class="featured__item__pic set-bg" id ='abcimage' data-setbg= "{% if product.image1 %}{{product.image1.url}}{% endif %}">
+                        
+                            <ul class="featured__item__pic__hover">
+                                {% if request.user.is_authenticated %}
+                                <li><a href="{% url 'product:add-wishlist' request.user.username product.id %}">
+                                <i class="fa fa-heart"></i></a></li>
+                                {% endif %}
+                                <li><a href="{% url 'product:add_to_cart' product.id %}"><i class="fa fa-shopping-cart"></i></a></li>
+                            </ul>
+                        </div>
+                   
+                        
+                        <div class="featured__item__text">
+                            <h6><a href="{% url 'product:product_detail' product.id %}">{{ product.name }}</a></h6>
+                            <h5>Rs.{{ product.price }}</h5>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
+        <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+        <script src="{% static 'js/jquery.slicknav.js' %}"></script>
+        <script src="{% static 'js/mixitup.min.js' %}"></script>
+        <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+        <script src="{% static 'js/main.js' %}"></script>
+    
+{% endblock content %}
