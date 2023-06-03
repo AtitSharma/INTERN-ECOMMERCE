@@ -1,4 +1,4 @@
 e-commerce
-.env
-.DS_Store
-.gitignore
+env
+DS_Store
+gitignore
