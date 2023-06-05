@@ -1,3 +1,6 @@
 e-commerce
 .env
 .DS_Store
+media
+db.sqlite3
+

@@ -1,15 +1,15 @@
-from typing import Any, Dict
+
 from django.shortcuts import render,redirect,reverse
-from product.models import Category,Cart,Product,Wishlist
+from product.models import Category,Cart,Product,Wishlist,Like,Comment
 from django.contrib.auth.decorators import  login_required
-from django.http import HttpResponseRedirect
-from product.forms import ProductCreationForm
+from django.http import HttpResponseRedirect,HttpResponse
+from product.forms import ProductCreationForm,ProductSearchForm
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView,DeleteView
+from django.views.generic import DetailView
 from django.http import Http404
-from django.utils import timezone
+
 
 
 
@@ -18,7 +18,8 @@ class HomeView(View):
     def get(self,request):
         context={
             "categories":Category.objects.all(),
-            "products":Product.objects.filter(quantity__gte=1)
+            "products":Product.objects.filter(quantity__gte=1),
+            "form":ProductSearchForm,
         }
         return render(request,"home.html",context)
     
@@ -115,6 +116,12 @@ class ProductDetailView(DetailView):
     model=Product
     template_name="product_detail.html"
     
+    def get_context_data(self, **kwargs):
+        pk=self.kwargs.get("pk")
+        context=super().get_context_data(**kwargs)
+        context["likes"]=Like.objects.filter(product__id=pk)
+        return context
+    
 class DeleteCart(View):
     def get(self,request,username,cid):
         if request.user.username != username:
@@ -122,5 +129,18 @@ class DeleteCart(View):
         cart=Cart.objects.filter(username=username,id=cid)
         cart.delete()
         return redirect("product:my_cart",username=username)
+    
+    
+def search(request):
+    name=request.POST.get('product_name').upper()
+    products=Product.objects.filter(name__icontains=name)
+    if not products:
+        return HttpResponse('Not Found')
+    return render(request,"search.html",{"products":products})
 
     
+    
+    
+
+def like(request,username,pid):
+    pass

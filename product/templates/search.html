@@ -2,6 +2,7 @@
 {% load static %}
 {% block content %}
 <div class="row featured__filter">
+    {% for product in products %}
         <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
             <div class="featured__item" style="margin:center;">    
                 <div class="featured__item__pic set-bg" id ='abcimage' data-setbg= "{% if product.image1 %}{{product.image1.url}}{% endif %}">
@@ -23,16 +24,12 @@
                     Quantity Available : {{product.quantity}} <br>
                     Status: {{product.status}} <br>   
                     <h5>Price: Rs.{{ product.price }}</h5><br>
-                    Likes: {{likes.count}}
-
                     
                 </div>
             </div>
         </div>
-        
+        {% endfor %}
 </div>
-<a href="#">like now </a>
-
 <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
