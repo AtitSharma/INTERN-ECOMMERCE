@@ -1,39 +1,73 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="row featured__filter">
-        <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
-            <div class="featured__item" style="margin:center;">    
-                <div class="featured__item__pic set-bg" id ='abcimage' data-setbg= "{% if product.image1 %}{{product.image1.url}}{% endif %}">
-                    <ul class="featured__item__pic__hover">
-                        {% if request.user.is_authenticated %}
-                        <li><a href="{% url 'product:add-wishlist' request.user.username product.id %}">
-                        <i class="fa fa-heart"></i></a></li>
-                        {% endif %}
-                        <li><a href="{% url 'product:add_to_cart' product.id %}"><i class="fa fa-shopping-cart"></i></a></li>
-                    </ul>
-                </div>
-           
-                
-                <div class="featured__item__text">
-                    <h6><a href="#">Product Name : {{product.name}}</a></h6>
-                    Description: {{product.description}} <br>
-                    Seller: {{product.user.username }}  <br>  
-                    Category:{{product.category}}<br>  
-                    Quantity Available : {{product.quantity}} <br>
-                    Status: {{product.status}} <br>   
-                    <h5>Price: Rs.{{ product.price }}</h5><br>
-                    Likes: {{likes.count}}
+<style>
+    .comment-section {
+        margin-top: 100px;
+    }
+</style>
+{% for message in messages %}
+    <p style="text-align:center;">{{message}}</p>
+{% endfor %}
 
-                    
+<div class="row">
+    <div class="col-lg-9">
+        <div class="row featured__filter">
+            <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
+                <div class="featured__item" style="margin:center;">
+                    <div class="featured__item__pic set-bg" id='abcimage'
+                        data-setbg="{% if product.image1 %}{{product.image1.url}}{% endif %}">
+                        <ul class="featured__item__pic__hover">
+                            {% if request.user.is_authenticated %}
+                            <li><a href="{% url 'product:add-wishlist' request.user.username product.id %}"><i
+                                        class="fa fa-heart"></i></a></li>
+                            {% endif %}
+                            <li><a href="{% url 'product:add_to_cart' product.id %}"><i
+                                        class="fa fa-shopping-cart"></i></a></li>
+                        </ul>
+                    </div>
+                    <div class="featured__item__text">
+                        <h6><a href="#">Product Name : {{product.name}}</a></h6>
+                        Description: {{product.description}} <br>
+                        Seller: {{product.user.username }} <br>
+                        Category:{{product.category}}<br>
+                        Quantity Available : {{product.quantity}} <br>
+                        Status: {{product.status}} <br>
+                        <h5>Price: Rs.{{ product.price }}</h5><br>
+                        Likes: {{likes.count}}
+                    </div>
                 </div>
             </div>
         </div>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'product:like' product.id %}">like now</a>
         
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Submit">
+        </form>
+        {% else %}
+        <p> Login to Like and Comment </p>
+        {% endif %}
+    </div>
+    <div class="col-lg-3 comment-section">
+        <div>
+            {% for comment in comments %}
+            <h4>From :{{ comment.user.username }} </h4><br>
+            email : {{ comment.user}} <br>
+            Comment: {{ comment.details }}<br>
+            {% if request.user == comment.user %}
+            <a href="{% url 'product:delete-comment' comment.id %}">
+            <button class="btn btn-danger">Delete</button>
+            </a>
+            {% endif %}
+            <br>
+            {% endfor %}
+        </div>
+    </div>
 </div>
-{% if request.user.is_authenticated %}
-<a href="{% url 'product:like' product.id %}">like now </a>
-{% endif %}
 
 <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -42,5 +76,6 @@
 <script src="{% static 'js/jquery.slicknav.js' %}"></script>
 <script src="{% static 'js/mixitup.min.js' %}"></script>
 <script src="{% static 'js/owl.carousel.min.js' %}"></script>
-<script src="{% static 'js/main.js' %}"></script> 
+<script src="{% static 'js/main.js' %}"></script>
+
 {% endblock content %}

@@ -58,11 +58,20 @@ class Like(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="likes")
     user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="likes")
     is_liked=models.BooleanField(default=False)
+    
+    class Meta:
+        constraints=[
+            models.UniqueConstraint(fields=["product","user"],name="unique_like")
+        ]
 
 class Comment(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="comment")
     user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="comment")
+    details=models.TextField()
     
+    def __str__(self):
+        return str(self.details)
     
+
     
     

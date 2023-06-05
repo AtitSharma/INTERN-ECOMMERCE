@@ -1,14 +1,14 @@
-
 from django.shortcuts import render,redirect,reverse
 from product.models import Category,Cart,Product,Wishlist,Like,Comment
 from django.contrib.auth.decorators import  login_required
 from django.http import HttpResponseRedirect,HttpResponse
-from product.forms import ProductCreationForm,ProductSearchForm
+from product.forms import ProductCreationForm,ProductSearchForm,CommentCreationForm
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
 from django.http import Http404
+
 
 
 
@@ -83,9 +83,6 @@ class SellItem(LoginRequiredMixin,View):
             user.save()
             return redirect("product:home")
         
-        
-        
-
 @login_required
 def add_to_wishlist(request,username,pid):
     if request.user.username !=username:
@@ -120,9 +117,27 @@ class ProductDetailView(DetailView):
         pk=self.kwargs.get("pk")
         context=super().get_context_data(**kwargs)
         context["likes"]=Like.objects.filter(product__id=pk,is_liked=True)
+        context["form"]=CommentCreationForm()
+        context["comments"]=Comment.objects.filter(product__pk=pk)
         return context
     
-class DeleteCart(View):
+    def post(self,request,*args,**kwargs):
+        pk=self.kwargs.get("pk")
+        product=Product.objects.get(id=pk)
+        form=CommentCreationForm(request.POST)
+        if form.is_valid():
+            comment=form.save(commit=False)
+            comment.user=request.user
+            comment.product=product
+            comment.save()
+            messages.add_message(request,messages.INFO,"Succesfuly added your Comment ")
+            
+        return HttpResponseRedirect(reverse("product:product_detail",kwargs={"pk":pk}))
+            
+            
+        
+    
+class DeleteCart(LoginRequiredMixin,View):
     def get(self,request,username,cid):
         if request.user.username != username:
             raise Http404
@@ -131,25 +146,43 @@ class DeleteCart(View):
         return redirect("product:my_cart",username=username)
     
     
-def search(request):
-    name=request.POST.get('product_name').upper()
-    products=Product.objects.filter(name__icontains=name)
-    if not products:
-        return HttpResponse('Not Found')
-    return render(request,"search.html",{"products":products})
+class Search(View):
+    def post(self,request):
+        name=request.POST.get('product_name').upper()
+        products=Product.objects.filter(name__icontains=name)
+        if not products:
+            return HttpResponse('Not Found')
+        return render(request,"search.html",{"products":products})
 
-    
-    
-    
-
+@login_required
 def like(request,pid):
     product = Product.objects.get(id=pid)
     like, created = Like.objects.get_or_create(user=request.user, product=product)
-
     if created or not like.is_liked:
         like.is_liked = True
     else:
         like.is_liked = False
-
     like.save()
     return HttpResponseRedirect(reverse("product:product_detail",kwargs={"pk":pid}))
+
+class DeleteCommentView(LoginRequiredMixin,View):
+    def get(self,request,*args,**kwargs):
+        comment_id=self.kwargs.get("id")
+        print(comment_id)
+        product_id=Comment.objects.get(id=comment_id).product.id
+        comment=Comment.objects.get(id=comment_id)
+        if request.user != comment.user:
+            messages.add_message(request,messages.INFO,"Cant Delete Other Comments")
+            return redirect("product:product_detail",pk=product_id)
+        comment.delete()
+        messages.add_message(request,messages.INFO,"Successfully deleted the comment")
+        return redirect("product:product_detail",pk=product_id)
+        
+        
+        
+        
+    
+        
+        
+
+

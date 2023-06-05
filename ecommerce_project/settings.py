@@ -141,7 +141,7 @@ LOGIN_REDIRECT_URL="product:home"
 STRIPE_PUBLISHABLE_KEY =config("STRIPE_PUBLISHABLE_KEY")
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY")
 BACKEND_DOMAIN = 'http://localhost:8000/home/'
-PAYMENT_SUCCESS_URL = 'http://localhost:8000/home/'
+PAYMENT_SUCCESS_URL = 'http://localhost:8000/payments/success/'
 
 
 

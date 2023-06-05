@@ -16,7 +16,7 @@
                     <ul class="featured__item__pic__hover">
                         <li><a href="{% url 'product:add-wishlist' request.user.username cart.product.id %}"><i class="fa fa-heart"></i></a></li>
                         <li><a href="{% url 'product:add_to_cart' cart.product.id %}"><i class="fa fa-shopping-cart"></i></a></li>
-                        <li><a href="#">👜</a></li>
+                        <li><a href="{% url 'payments:create-checkout-session' cart.product.id %}">👜</a></li>
                         <li><a href="#" onclick="clicked({{cart.id}})">❌</a></li>
                         
                 </ul>

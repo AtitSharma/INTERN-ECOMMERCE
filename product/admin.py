@@ -1,5 +1,5 @@
 from django.contrib import admin
-from product.models import Product,Cart,Category
+from product.models import Product,Cart,Category,Like,Comment
 
 # Register your models here.
 
@@ -16,5 +16,8 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display=["username","product","quantity","total_price"]
-
+    
+@admin.register(Like)
+class LikeAdmin(admin.ModelAdmin):
+    list_display=["product","user","is_liked"]
    
