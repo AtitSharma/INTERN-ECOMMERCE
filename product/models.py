@@ -55,8 +55,8 @@ class Wishlist(models.Model):
     
     
 class Like(models.Model):
-    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="like")
-    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="like")
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="likes")
+    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="likes")
     is_liked=models.BooleanField(default=False)
 
 class Comment(models.Model):

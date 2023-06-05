@@ -1,7 +1,7 @@
 from django.urls import path
 from product.views import (Shop,SellItem,ProductDetailView,search,
                            add_to_cart,add_to_wishlist,DeleteCart,
-                           MyWishList,HomeView,MyCart)
+                           MyWishList,HomeView,MyCart,like)
 
 
 
@@ -18,6 +18,7 @@ urlpatterns = [
     path("product/<int:pk>/",ProductDetailView.as_view(),name="product_detail"),
     path("delete-cart/<str:username>/<int:cid>/",DeleteCart.as_view(),name="delete-cart"),
     path("search/",search,name="search"),
+    path("like/<int:pid>/",like,name="like"),
     
     
     

@@ -119,7 +119,7 @@ class ProductDetailView(DetailView):
     def get_context_data(self, **kwargs):
         pk=self.kwargs.get("pk")
         context=super().get_context_data(**kwargs)
-        context["likes"]=Like.objects.filter(product__id=pk)
+        context["likes"]=Like.objects.filter(product__id=pk,is_liked=True)
         return context
     
 class DeleteCart(View):
@@ -142,5 +142,14 @@ def search(request):
     
     
 
-def like(request,username,pid):
-    pass
+def like(request,pid):
+    product = Product.objects.get(id=pid)
+    like, created = Like.objects.get_or_create(user=request.user, product=product)
+
+    if created or not like.is_liked:
+        like.is_liked = True
+    else:
+        like.is_liked = False
+
+    like.save()
+    return HttpResponseRedirect(reverse("product:product_detail",kwargs={"pk":pid}))
