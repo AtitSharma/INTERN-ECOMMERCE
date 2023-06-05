@@ -1,7 +1,7 @@
 e-commerce
 .env
 .DS_Store
-media
-db.sqlite3
-staticfiles
+*media
+*db.sqlite3
+*staticfiles
 
