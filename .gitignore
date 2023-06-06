@@ -4,4 +4,4 @@ e-commerce
 media/
 db.sqlite3
 staticfiles
-.vscode
+.vscode/
