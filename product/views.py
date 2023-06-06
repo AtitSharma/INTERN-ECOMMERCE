@@ -1,3 +1,4 @@
+from typing import Optional
 from django.shortcuts import render,redirect,reverse
 from product.models import Category,Cart,Product,Wishlist,Like,Comment
 from django.contrib.auth.decorators import  login_required
@@ -5,13 +6,9 @@ from django.http import HttpResponseRedirect,HttpResponse
 from product.forms import ProductCreationForm,ProductSearchForm,CommentCreationForm
 from django.contrib import messages
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
+from django.views.generic import DetailView,UpdateView
 from django.http import Http404
-
-
-
-
 
 
 class HomeView(View):  
@@ -179,7 +176,24 @@ class DeleteCommentView(LoginRequiredMixin,View):
         return redirect("product:product_detail",pk=product_id)
         
         
+class MyProductView(LoginRequiredMixin,View):
+    def get(self,request,*args,**kwargs):
+        products=Product.objects.filter(user__username=request.user.username,quantity__gte=1)
+        context={
+            "products":products,
+        }
+        return render (request,"my_products.html",context)
+    
+# class EditProductView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
+#     model=Product
+#     template_name=""
+    
+    
+#     def test
         
+    
+        
+      
         
     
         

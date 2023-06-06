@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'useraccount',
     'product',
     'payments',
+    'my_inventory',
 ]
 
 MIDDLEWARE = [

@@ -15,7 +15,8 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 class CreateStripeCheckoutSessionView(View):
     def get(self, request, *args, **kwargs):        
         price = Product.objects.get(id=self.kwargs["pk"])
-        cart=Cart.objects.get(product__id=price.id)
+        cart=Cart.objects.get(product__id=price.id,username=request.user.username)
+        print(request.user)
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items = [
@@ -24,7 +25,7 @@ class CreateStripeCheckoutSessionView(View):
                         'currency':'NPR',
                         'unit_amount': price.price * 100,
                         'product_data':{
-                            'name': price.user.email,
+                            'name': request.user.username,
                         }
                     },
                     'quantity': cart.quantity
@@ -43,13 +44,15 @@ class SuccessView(TemplateView,View):
         product_id = self.kwargs.get("id")
         if product_id:
             product=Product.objects.get(id=product_id)
-            cart=Cart.objects.get(product__id=product.id)
+            # cart=Cart.objects.get(product__id=product.id)
+            cart=Cart.objects.get(product__id=product.id,username=request.user.username)
             if product.quantity < cart.quantity:
                 messages.add_message(request,messages.INFO,"Cannot purchased the product please Select less amout")
                 return redirect("product:home")
             product.quantity -= cart.quantity
             product.save()
             messages.add_message(request,messages.INFO,"Sucessfully  purchased the product")
+            cart.delete()
             return redirect("product:home")
         else:
             messages.add_message(request,messages.INFO,"Unable to purchase the product")

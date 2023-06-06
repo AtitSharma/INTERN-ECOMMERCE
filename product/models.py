@@ -67,10 +67,11 @@ class Like(models.Model):
 class Comment(models.Model):
     product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="comment")
     user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="comment")
-    details=models.TextField()
-    
+    details=models.TextField() 
     def __str__(self):
         return str(self.details)
+    
+
     
 
     
