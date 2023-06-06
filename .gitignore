@@ -3,5 +3,5 @@ e-commerce
 .DS_Store
 media/
 db.sqlite3
-staticfiles/*
-
+staticfiles
+.vscode
