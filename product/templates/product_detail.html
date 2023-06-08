@@ -21,6 +21,7 @@
                             {% if request.user.is_authenticated %}
                             <li><a href="{% url 'product:add-wishlist' request.user.username product.id %}"><i
                                         class="fa fa-heart"></i></a></li>
+                                        <li><a href="{% url 'payments:create-checkout-session' product.id %}">👜</a></li>
                             {% endif %}
                             <li><a href="{% url 'product:add_to_cart' product.id %}"><i
                                         class="fa fa-shopping-cart"></i></a></li>

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    {% for inventory in inventories %}
+       Seller Name: {{inventory.user}}<br>
+       Buyer Name : {{ inventory.buyer_user }}<br>
+       {% for product in inventory.product.all %}
+        Product Name: {{product}}<br>
+        Produt Price : {{ product.price}} <br>
+        Product Category : {{ product.category}}<br>
+       {% endfor%}
+       Quantity to Deliver : {{ inventory.quantity}} <br>
+
+    {% endfor %}
+    <br>
+    *****************************************************
+
+{% endblock content %}

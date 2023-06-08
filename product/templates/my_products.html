@@ -14,7 +14,7 @@
             <div class="featured__item">
                 <div class="featured__item__pic set-bg" id ='abcimage'data-setbg="{% if product.image1 %}{{product.image1.url}}{% endif %}">
                     <ul class="featured__item__pic__hover">
-                        <li><a href="#">✍️</a></li>
+                        <li><a href="{% url 'product:edit_product' product.id%}">✍️</a></li>
                         <li><a href="#" onclick="clicked({{product.id}})">❌</a></li>
                         
                 </ul>
@@ -25,8 +25,7 @@
                     Seller: {{product.user.username }}  <br>  
                     Category:{{product.category}}<br>  
                     Quantity Available : {{product.quantity}} <br>
-                    Status: {{product.status}} <br>
-                    Price Choosen : {{ total_price }}     
+                    Status: {{product.status}} <br>  
                     <h5>Price: Rs.{{ product.price }}</h5><br>
                 </div>
                 

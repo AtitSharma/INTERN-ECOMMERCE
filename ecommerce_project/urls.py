@@ -19,9 +19,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('',include('product.urls',namespace="product")),
     path('admin/', admin.site.urls),
     path('user/',include('useraccount.urls',namespace="useraccount")),
-    path('',include('product.urls',namespace="product")),
-    path("payments/",include('payments.urls',namespace="payments"))
+    path("payments/",include('payments.urls',namespace="payments")),
+    path("inventory/",include("my_inventory.urls",namespace="inventory"))
     
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

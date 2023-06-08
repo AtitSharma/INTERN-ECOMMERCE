@@ -1,4 +1,4 @@
-from typing import Optional
+from django.urls import reverse_lazy
 from django.shortcuts import render,redirect,reverse
 from product.models import Category,Cart,Product,Wishlist,Like,Comment
 from django.contrib.auth.decorators import  login_required
@@ -9,7 +9,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.views.generic import DetailView,UpdateView
 from django.http import Http404
-
+from my_inventory.models import Inventory
 
 class HomeView(View):  
     def get(self,request):
@@ -60,6 +60,9 @@ def add_to_cart(request,pk,quantity=1):
         cart_item=Cart.objects.get(username=username,product__name=product)
         cart_item.quantity +=quantity
         cart_item.total_price += total_price
+        if cart_item.product.quantity < cart_item.quantity:
+            messages.add_message(request,messages.INFO,"Cannot Items more than available ")
+            return redirect("product:home")
         cart_item.save()
         messages.add_message(request,messages.INFO,f"Sucessfully Updated Cart {product}")
         return HttpResponseRedirect(reverse("product:my_cart",args=(request.user.username,)))
@@ -184,13 +187,23 @@ class MyProductView(LoginRequiredMixin,View):
         }
         return render (request,"my_products.html",context)
     
-# class EditProductView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
-#     model=Product
-#     template_name=""
+class EditProductView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
+    model=Product
+    template_name="edit_product.html"
+    fields=["name","category","description","price","quantity","status","image1","image2"]
+    # success_url=reverse_lazy("product:my_products")
     
     
-#     def test
-        
+    def test_func(self):
+        product=self.get_object()
+        return self.request.user == product.user
+    
+    
+    def get_success_url(self):
+        messages.add_message(self.request,messages.INFO,"Successfully Updated the Product ")
+        return reverse("product:my_products")
+    
+
     
         
       

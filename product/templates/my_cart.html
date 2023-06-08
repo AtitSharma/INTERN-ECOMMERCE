@@ -15,7 +15,6 @@
                 <div class="featured__item__pic set-bg" id ='abcimage'data-setbg="{% if cart.product.image1 %}{{cart.product.image1.url}}{% endif %}">
                     <ul class="featured__item__pic__hover">
                         <li><a href="{% url 'product:add-wishlist' request.user.username cart.product.id %}"><i class="fa fa-heart"></i></a></li>
-                        <li><a href="{% url 'product:add_to_cart' cart.product.id %}"><i class="fa fa-shopping-cart"></i></a></li>
                         <li><a href="{% url 'payments:create-checkout-session' cart.product.id %}">👜</a></li>
                         <li><a href="#" onclick="clicked({{cart.id}})">❌</a></li>
                         
@@ -28,14 +27,15 @@
                     Category:{{cart.product.category}}<br>  
                     Quantity Available : {{cart.product.quantity}} <br>
                     Quantity Available Added In Cart : {{cart.quantity}} <br>
+                    {% comment %} <a href="{% url 'product:add_to_cart' cart.product.id %}">+</a><br> {% endcomment %}
+                    <a href="{% url 'product:add_to_cart' cart.product.id %}" onclick="clicked1({{cart.quantity}})">+</a><br>
                     Status: {{cart.product.status}} <br>
-                    Price Choosen : {{ cart.total_price }}     
+                    Price Choosen :<p class="hello"> {{ cart.total_price }}    </p> 
                     <h5>Price: Rs.{{ cart.product.price }}</h5><br>
                 </div>
                 
             </div>
         </div>
-        
         {% endfor %}
 </div>
 
@@ -59,7 +59,13 @@
           window.location.href = url;
         }
       }
-            
+    
+      function clicked1(quantity){
+        event.preventDefault();
+        console.log(quantity);
+        document.querySelectorAll("p.hello")[0].innerHTML="guyzzz"
+      }
+    
         
 </script>
 {% endblock content %}
