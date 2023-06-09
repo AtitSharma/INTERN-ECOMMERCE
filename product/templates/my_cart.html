@@ -27,29 +27,24 @@
                     Category:{{cart.product.category}}<br>  
                     Quantity Available : {{cart.product.quantity}} <br>
                     Quantity Available Added In Cart : {{cart.quantity}} <br>
-                    {% comment %} <a href="{% url 'product:add_to_cart' cart.product.id %}">+</a><br> {% endcomment %}
-                    <a href="{% url 'product:add_to_cart' cart.product.id %}" onclick="clicked1({{cart.quantity}})">+</a><br>
                     Status: {{cart.product.status}} <br>
                     Price Choosen :<p class="hello"> {{ cart.total_price }}    </p> 
                     <h5>Price: Rs.{{ cart.product.price }}</h5><br>
+                    <button>+</button><br> 
+                    <button>-</button><br> 
                 </div>
                 
             </div>
         </div>
         {% endfor %}
 </div>
+<button id="demo123">CLICK</button><br> 
+{% csrf_token %}
+<button id="dataman">POST DATA</button>
 
-<script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
-<script src="{% static 'js/jquery-ui.min.js' %}"></script>
-<script src="{% static 'js/jquery.slicknav.js' %}"></script>
-<script src="{% static 'js/mixitup.min.js' %}"></script>
-<script src="{% static 'js/owl.carousel.min.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
 
 <script>
-    
     function clicked(cid) {
         event.preventDefault();
         if (confirm("Do you really want to delete the product from cart?")) {
@@ -59,13 +54,50 @@
           window.location.href = url;
         }
       }
-    
-      function clicked1(quantity){
-        event.preventDefault();
-        console.log(quantity);
-        document.querySelectorAll("p.hello")[0].innerHTML="guyzzz"
-      }
-    
+
+        function getCSRFToken() {
+            var cookieValue = null;
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+              var cookie = cookies[i].trim();
+              if (cookie.startsWith('csrftoken=')) {
+                cookieValue = cookie.substring('csrftoken='.length, cookie.length);
+                break;
+              }
+            }
+            return cookieValue;
+          }
+
+      
         
-</script>
+
+
+    </script>
+
+
+
+
+
+    {% comment %} $("#toggle").click(function(){
+        $.ajax({
+            url: "http://localhost:8000/test-json/",
+            type: "GET",
+            // data: JSON.stringify({
+            //     "room_name": room_name,
+            //     "page_number": parseInt(page_number)
+            // }),
+            success: function(data){
+                console.log("ok")
+                console.log(data)
+
+            },
+            error: function(data){
+                console.log(data)
+            }
+        })
+        
+    }) {% endcomment %}
+
+        
+
 {% endblock content %}

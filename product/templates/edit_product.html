@@ -1,11 +1,71 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <div style="text-align:center;">
-    <h1 style="background-color:blue;"> Edit Your Product Here </h1><br>
-<form method="post" enctype="multipart/form-data">
+  <h4 style="background-color:blue;"> Edit Your Product Here </h4><br>
+<p id="hello" style="text-align:center;"></p>
+
+
+{{}}
+  
+<form id="formdata" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Submit">
+    <input id="submit" type="submit" value="Submit" onclick="clicked({{id}})">
 </form>
+
 </div>
+
+
+
+
+<script>
+    function getCSRFToken() {
+        var cookieValue = null;
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          if (cookie.startsWith('csrftoken=')) {
+            cookieValue = cookie.substring('csrftoken='.length, cookie.length);
+            break;
+          }
+        }
+        return cookieValue;
+      }
+
+      function clicked(id) {
+        event.preventDefault();
+        var formData = $("#formdata").serializeArray();
+        var jsonData = {};
+
+        for (var i = 0; i < formData.length; i++) {
+          var item = formData[i];
+          jsonData[item.name] = item.value;
+        }
+        var jsonStr = JSON.stringify(jsonData);
+      
+        $.ajax({
+          url: "{% url 'product:edit_product' id %}",
+          type: 'POST',
+          contentType: "application/json",
+          data: jsonStr,
+          headers: {
+            'X-CSRFToken': getCSRFToken()
+          },
+          success: function(response) {
+            console.log(response);
+            console.log(response.message)
+            $("#hello").text(response.message);
+          },
+          error : function(){
+            $("#hello").text("Unable to update !!!");
+          }
+        });
+      }
+      
+
+ 
+</script>
+
+
 {% endblock content %}

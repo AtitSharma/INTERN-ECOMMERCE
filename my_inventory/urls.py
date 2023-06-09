@@ -5,5 +5,5 @@ from my_inventory.views import MyInventoryView
 app_name="inventory"
 
 urlpatterns = [
-    path("",MyInventoryView.as_view(),name="my_inv")
+    path("",MyInventoryView.as_view(),name="my_inv"),
 ]

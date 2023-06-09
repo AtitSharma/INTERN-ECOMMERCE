@@ -3,11 +3,11 @@
 <html lang="zxx">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="description" content="Ogani Template">
+    {% comment %} <meta charset="UTF-8"> {% endcomment %}
+    {% comment %} <meta name="description" content="Ogani Template">
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"> {% endcomment %}
     <title>ABC SHOP</title>
 
     <!-- Google Font -->
@@ -22,10 +22,13 @@
     <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css'%}" type="text/css">
     <link rel="stylesheet" href="{% static 'css/slicknav.min.css'%}" type="text/css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
+    
 </head>
 
 <body>
     {% include 'navbar.html' %}
+    {% comment %} <button id="toggle"> Click here</button> {% endcomment %}
+    <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/jquery.nice-select.min.js'%}"></script>
@@ -34,6 +37,29 @@
     <script src="{% static 'js/mixitup.min.js' %}"></script>
     <script src="{% static 'js/owl.carousel.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    
+{% comment %} <script>
+    $("#toggle").click(function(){
+        $.ajax({
+            url: "http://localhost:8000/test-json/",
+            type: "GET",
+            // data: JSON.stringify({
+            //     "room_name": room_name,
+            //     "page_number": parseInt(page_number)
+            // }),
+            success: function(data){
+                console.log("ok")
+                console.log(data)
+
+            },
+            error: function(data){
+                console.log(data)
+            }
+        })
+        
+    })
+</script> {% endcomment %}
+
     {% block content %}
 
     {% endblock content %}

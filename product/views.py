@@ -1,4 +1,4 @@
-from django.urls import reverse_lazy
+
 from django.shortcuts import render,redirect,reverse
 from product.models import Category,Cart,Product,Wishlist,Like,Comment
 from django.contrib.auth.decorators import  login_required
@@ -7,9 +7,11 @@ from product.forms import ProductCreationForm,ProductSearchForm,CommentCreationF
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
-from django.views.generic import DetailView,UpdateView
 from django.http import Http404
-from my_inventory.models import Inventory
+from django.http import JsonResponse
+import json
+
+
 
 class HomeView(View):  
     def get(self,request):
@@ -60,7 +62,7 @@ def add_to_cart(request,pk,quantity=1):
         cart_item=Cart.objects.get(username=username,product__name=product)
         cart_item.quantity +=quantity
         cart_item.total_price += total_price
-        if cart_item.product.quantity < cart_item.quantity:
+        if product.quantity < cart_item.quantity:
             messages.add_message(request,messages.INFO,"Cannot Items more than available ")
             return redirect("product:home")
         cart_item.save()
@@ -109,32 +111,83 @@ class MyWishList(LoginRequiredMixin,View):
         return render(request,"wishlist.html",context)
     
         
-class ProductDetailView(DetailView):
-    model=Product
-    template_name="product_detail.html"
+# class ProductDetailView(DetailView):
+#     model=Product
+#     template_name="product_detail.html"
     
-    def get_context_data(self, **kwargs):
-        pk=self.kwargs.get("pk")
-        context=super().get_context_data(**kwargs)
-        context["likes"]=Like.objects.filter(product__id=pk,is_liked=True)
-        context["form"]=CommentCreationForm()
-        context["comments"]=Comment.objects.filter(product__pk=pk)
-        return context
+#     def get_context_data(self, **kwargs):
+#         pk=self.kwargs.get("pk")
+#         context=super().get_context_data(**kwargs)
+#         context["likes"]=Like.objects.filter(product__id=pk,is_liked=True)
+#         context["form"]=CommentCreationForm()
+#         context["comments"]=Comment.objects.filter(product__pk=pk)
+#         return context
     
-    def post(self,request,*args,**kwargs):
+#     def post(self,request,*args,**kwargs):
+#         pk=self.kwargs.get("pk")
+#         product=Product.objects.get(id=pk)
+#         form=CommentCreationForm(request.POST)
+#         if form.is_valid():
+#             comment=form.save(commit=False)
+#             comment.user=request.user
+#             comment.product=product
+#             comment.save()
+#             messages.add_message(request,messages.INFO,"Succesfuly added your Comment ")
+            
+#         return HttpResponseRedirect(reverse("product:product_detail",kwargs={"pk":pk}))
+            
+
+class ProductDetailView(View):
+    
+    
+    def get(self,request,*args,**kwargs):
         pk=self.kwargs.get("pk")
+        likes=Like.objects.filter(product__id=pk,is_liked=True)
+        form=CommentCreationForm()
+        comments=Comment.objects.filter(product__pk=pk)
         product=Product.objects.get(id=pk)
-        form=CommentCreationForm(request.POST)
+        context={
+            "likes":likes,
+            "form":form,
+            "comments":comments,
+            "product":product,
+            "id":pk,
+        }
+        return render(request,"product_detail.html",context)
+       
+
+
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get("pk") 
+        product = Product.objects.get(pk=pk)
+        data = json.loads(request.body)
+        
+        form = CommentCreationForm(data)
+        
         if form.is_valid():
-            comment=form.save(commit=False)
-            comment.user=request.user
-            comment.product=product
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.product = product
             comment.save()
-            messages.add_message(request,messages.INFO,"Succesfuly added your Comment ")
+            new_comment = {
+                'user': {
+                    'username': comment.user.username,
+                    'email': comment.user.email,
+                },
+                'details': comment.details,
+            }
+            return JsonResponse({"comment": new_comment})
+
+
             
-        return HttpResponseRedirect(reverse("product:product_detail",kwargs={"pk":pk}))
-            
-            
+        
+        
+    
+    
+    
+
+
+   
         
     
 class DeleteCart(LoginRequiredMixin,View):
@@ -187,25 +240,60 @@ class MyProductView(LoginRequiredMixin,View):
         }
         return render (request,"my_products.html",context)
     
-class EditProductView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
-    model=Product
-    template_name="edit_product.html"
-    fields=["name","category","description","price","quantity","status","image1","image2"]
-    # success_url=reverse_lazy("product:my_products")
-    
-    
-    def test_func(self):
-        product=self.get_object()
-        return self.request.user == product.user
-    
-    
-    def get_success_url(self):
-        messages.add_message(self.request,messages.INFO,"Successfully Updated the Product ")
-        return reverse("product:my_products")
     
 
+# def edit_product(request, pk):
+#     product = Product.objects.get(pk=pk)
+#     form = ProductCreationForm(instance=product)
+#     if request.method == 'POST':
+#         data=json.loads(request.body)
+#         form = ProductCreationForm(data, instance=product) 
+#         if form.is_valid():
+#             form.save()
+#             return JsonResponse({'message': 'Product updated successfully'})
+
+#     return render(request, "edit_product.html", {"form": form,"id":pk})
+
+
+
+class EditProductView(LoginRequiredMixin,View,UserPassesTestMixin):
     
+    def test_func(self,*args,**kwargs):
+        pk=self.kwargs.get("pk")
+        product=Product.objects.get(pk=pk)
+        return self.request.user == product.user
+    
+    def get(self,request,*args,**kwargs):
+        pk=self.kwargs.get("pk")
+        if self.test_func(pk):
+            pk=self.kwargs.get("pk")
+            product = Product.objects.get(pk=pk)
+            form = ProductCreationForm(instance=product)   
+            return render(request,"edit_product.html",{"form":form,"id":pk})
+        else:
+            messages.add_message(request,messages.INFO,"Unable to edit other products")
+            return redirect("product:home")
+    
+    def post(self,request,*kwargs,**args):
+        data=json.loads(request.body)
+        pk=self.kwargs.get("pk")
+        product = Product.objects.get(pk=pk)
+        form=ProductCreationForm(data,instance=product)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': 'Product updated successfully'})
         
+        
+def try_ajax(request):
+    d = {'testing': list({1, 2, 3})}
+    if request.method=="POST":
+        data = json.loads(request.body)
+        print(data)
+        
+    return JsonResponse(data=d)
+
+
+
       
         
     

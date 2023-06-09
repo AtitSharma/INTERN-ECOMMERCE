@@ -44,17 +44,17 @@
         <a href="{% url 'product:like' product.id %}">like now</a>
         
         
-        <form method="post">
+        <form id="formdata" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <input type="submit" value="Submit">
+            <input type="submit" value="Submit" onclick="clicked({{pk}})">
         </form>
         {% else %}
         <p> Login to Like and Comment </p>
         {% endif %}
     </div>
     <div class="col-lg-3 comment-section">
-        <div>
+    <div id="comments-container"> 
             {% for comment in comments %}
             <h4>From :{{ comment.user.username }} </h4><br>
             email : {{ comment.user}} <br>
@@ -69,14 +69,72 @@
         </div>
     </div>
 </div>
+<p id="helio"> Comment </p>
 
-<script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
-<script src="{% static 'js/jquery-ui.min.js' %}"></script>
-<script src="{% static 'js/jquery.slicknav.js' %}"></script>
-<script src="{% static 'js/mixitup.min.js' %}"></script>
-<script src="{% static 'js/owl.carousel.min.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
+
+<script>
+    function getCSRFToken() {
+        var cookieValue = null;
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          if (cookie.startsWith('csrftoken=')) {
+            cookieValue = cookie.substring('csrftoken='.length, cookie.length);
+            break;
+          }
+        }
+        return cookieValue;
+      }
+    function clicked(id){
+        console.log(id);
+        console.log("Hello");
+        event.preventDefault();
+        var formdata= $("#formdata").serializeArray();
+        var jsonData={};
+        for(var i=0;i<formdata.length;i++){
+            var item = formdata[i];
+            jsonData[item.name]=item.value;
+        }
+        var jsonStr= JSON.stringify(jsonData);
+            $.ajax({
+
+            url: "{% url 'product:product_detail' pk=id %}",
+            type:'POST',
+            contentType:"application/json",
+            data:jsonStr,
+            headers:{
+                'X-CSRFToken':getCSRFToken()
+            },
+            success: function (response) {
+                var newCommentHtml = '<div class="comment">';
+                newCommentHtml += '<h4>From: ' + response.comment.user.username + '</h4>';
+                newCommentHtml += 'email: ' + response.comment.user.email + '<br>';
+                newCommentHtml += 'Comment: ' + response.comment.details + '<br>';
+                newCommentHtml += '<button class="btn btn-danger delete-comment-btn" data-comment-id="' + response.comment.id + '">Delete</button>';
+                newCommentHtml += '</div>';
+                $('#comments-container').append(newCommentHtml);
+
+            }
+
+
+        });
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+</script>
+
+
+
 
 {% endblock content %}
