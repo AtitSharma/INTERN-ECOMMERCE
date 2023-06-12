@@ -9,6 +9,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.http import Http404
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 import json
 
 
@@ -145,6 +146,7 @@ class ProductDetailView(View):
         likes=Like.objects.filter(product__id=pk,is_liked=True)
         form=CommentCreationForm()
         comments=Comment.objects.filter(product__pk=pk)
+        print(comments)
         product=Product.objects.get(id=pk)
         context={
             "likes":likes,
@@ -175,6 +177,8 @@ class ProductDetailView(View):
                     'email': comment.user.email,
                 },
                 'details': comment.details,
+                'message':"Sucessfully Commented !!!",
+                'id':comment.id
             }
             return JsonResponse({"comment": new_comment})
 
@@ -221,15 +225,19 @@ def like(request,pid):
 class DeleteCommentView(LoginRequiredMixin,View):
     def get(self,request,*args,**kwargs):
         comment_id=self.kwargs.get("id")
-        print(comment_id)
-        product_id=Comment.objects.get(id=comment_id).product.id
-        comment=Comment.objects.get(id=comment_id)
+        comments=Comment.objects.filter(id=comment_id)
+        print(comments)
+        # product_id=Comment.objects.get(product_id=comment_id).product.id
+        # comment=Comment.objects.get(id=comment_id)
+        comment = get_object_or_404(Comment, id=comment_id)
         if request.user != comment.user:
             messages.add_message(request,messages.INFO,"Cant Delete Other Comments")
-            return redirect("product:product_detail",pk=product_id)
+            return redirect("product:product_detail",pk=comment.product.id)
         comment.delete()
         messages.add_message(request,messages.INFO,"Successfully deleted the comment")
-        return redirect("product:product_detail",pk=product_id)
+        return redirect("product:product_detail",pk=comment.product.id)
+    
+    
         
         
 class MyProductView(LoginRequiredMixin,View):

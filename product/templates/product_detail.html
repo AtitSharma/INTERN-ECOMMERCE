@@ -4,16 +4,23 @@
 <style>
     .comment-section {
         margin-top: 100px;
+
     }
+    #msg{
+        background-color:green;
+        color:black;
+    }
+
 </style>
 {% for message in messages %}
     <p style="text-align:center;">{{message}}</p>
 {% endfor %}
+<p id="msg" class="sticky-top " style="z-index: 500; text-align:center;"></p>
 
 <div class="row">
     <div class="col-lg-9">
         <div class="row featured__filter">
-            <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
+            <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat" >
                 <div class="featured__item" style="margin:center;">
                     <div class="featured__item__pic set-bg" id='abcimage'
                         data-setbg="{% if product.image1 %}{{product.image1.url}}{% endif %}">
@@ -46,27 +53,36 @@
         
         <form id="formdata" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Submit" onclick="clicked({{pk}})">
+            {% for field in form %}
+            <div style="blue">
+                {{ field}}
+            </div>
+            {% endfor %}
+            <input type="submit" value="Submit" onclick="clicked({{id}})">
         </form>
         {% else %}
         <p> Login to Like and Comment </p>
         {% endif %}
     </div>
     <div class="col-lg-3 comment-section">
+        
     <div id="comments-container"> 
-            {% for comment in comments %}
+        {% for comment in comments %}
+        <div class="comment-class"
+            
             <h4>From :{{ comment.user.username }} </h4><br>
             email : {{ comment.user}} <br>
             Comment: {{ comment.details }}<br>
             {% if request.user == comment.user %}
-            <a href="{% url 'product:delete-comment' comment.id %}">
-            <button class="btn btn-danger">Delete</button>
+            <a href="#" onclick="deletefunction({{comment.id}})">
+            <button class="btn btn-danger ">Delete</button>
             </a>
             {% endif %}
             <br>
-            {% endfor %}
+            
         </div>
+        {% endfor %}
+       
     </div>
 </div>
 <p id="helio"> Comment </p>
@@ -107,13 +123,20 @@
                 'X-CSRFToken':getCSRFToken()
             },
             success: function (response) {
+                console.log(id)
                 var newCommentHtml = '<div class="comment">';
                 newCommentHtml += '<h4>From: ' + response.comment.user.username + '</h4>';
                 newCommentHtml += 'email: ' + response.comment.user.email + '<br>';
                 newCommentHtml += 'Comment: ' + response.comment.details + '<br>';
-                newCommentHtml += '<button class="btn btn-danger delete-comment-btn" data-comment-id="' + response.comment.id + '">Delete</button>';
+                newCommentHtml+=`<a href="#" onclick="deletefunction(${response.comment.id})">`
+                newCommentHtml += '<button class="btn btn-danger delete-comment-btn" data-comment-id=" onclick="deletefunction()"' + response.comment.id + '">Delete</button>';
                 newCommentHtml += '</div>';
                 $('#comments-container').append(newCommentHtml);
+                $("#msg").html(response.comment.message)
+                $("#msg").show();
+                $("#msg").slideUp(4000).delay(4000);
+
+                
 
             }
 
@@ -125,6 +148,30 @@
 
 
 
+    }
+    function deletefunction(cid){
+        event.preventDefault();
+        var deleteUrl = "{% url 'product:delete-comment' 0 %}".replace('0', cid);
+        $.ajax({
+            url:deleteUrl,
+            type:"GET",
+            contentType:"application/json",
+            headers:{
+                'X-CSRFToken':getCSRFToken()
+
+            },
+            success: function(){ 
+                console.log(cid)
+                var location = `a[onclick="deletefunction(${cid})"]`
+                $(location).closest('div').html("");
+                $("#msg").html("Deleted Your Comment !!!")
+                $("#msg").show();
+                $("#msg").slideUp(4000).delay(4000);
+            },
+            error : function(){
+                console.log("Errors")
+            }
+        });
     }
 
 
