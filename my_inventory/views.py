@@ -13,10 +13,4 @@ class MyInventoryView(LoginRequiredMixin,View):
     def get(self,request,*args,**kwargs):
         inverntories=Inventory.objects.filter(user=request.user)
         return render(request,"my_inventory.html",{"inventories":inverntories})
-    
-    
-    
-    
-
-
 

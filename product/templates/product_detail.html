@@ -54,7 +54,7 @@
         <form id="formdata" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% for field in form %}
-            <div style="blue">
+            <div style="color:blue;">
                 {{ field}}
             </div>
             {% endfor %}
@@ -124,6 +124,9 @@
             },
             success: function (response) {
                 console.log(id)
+                $("#formdata").each(function(){
+                    this.reset();
+                })
                 var newCommentHtml = '<div class="comment">';
                 newCommentHtml += '<h4>From: ' + response.comment.user.username + '</h4>';
                 newCommentHtml += 'email: ' + response.comment.user.email + '<br>';

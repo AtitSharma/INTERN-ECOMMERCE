@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-
+    *****************************************************<br>
     {% for inventory in inventories %}
        Seller Name: {{inventory.user}}<br>
        Buyer Name : {{ inventory.buyer_user }}<br>
@@ -10,9 +10,9 @@
         Product Category : {{ product.category}}<br>
        {% endfor%}
        Quantity to Deliver : {{ inventory.quantity}} <br>
-
+    *****************************************************<br>
     {% endfor %}
     <br>
-    *****************************************************
+    
 
 {% endblock content %}

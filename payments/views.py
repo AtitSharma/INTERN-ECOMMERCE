@@ -72,7 +72,7 @@ class SuccessView(TemplateView,View):
                 if product.quantity < quantity:
                     messages.add_message(request,messages.INFO,"Cannot purchased the product please Select less amout")
                     return redirect("product:home")
-                product.quantity += quantity
+                product.quantity -= quantity
                 product.save()
                 inventory=Inventory.objects.create(user=product.user,buyer_user=request.user,quantity=quantity)
                 inventory.save()

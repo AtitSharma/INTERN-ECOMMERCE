@@ -10,35 +10,72 @@ from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 import json
-
+from django.views.generic import ListView
 
 
 class HomeView(View):  
     def get(self,request):
+        products=Product.objects.filter(quantity__gte=1)
+        paginator=Paginator(products,3)
+        page=request.GET.get("page")
+        try:
+            product=paginator.page(page)
+        except PageNotAnInteger:
+            product=paginator.page(1)
+        except EmptyPage:
+            product=paginator.page(paginator.num_pages)
         context={
             "categories":Category.objects.all(),
-            "products":Product.objects.filter(quantity__gte=1),
+            "products":product,
             "form":ProductSearchForm,
         }
+        
         return render(request,"home.html",context)
     
-class Shop(View):
+class Shop(ListView):
+    paginate_by=3
+
+    template_name="shop.html"
+    
     def get(self,request,cartid=None):
         categories=Category.objects.all()
         if cartid==None:
             products=Product.objects.filter(quantity__gte=1)
+            
+            paginator=Paginator(products,self.paginate_by)
+            page=request.GET.get("page")
+            
+            try:
+                product=paginator.page(page)
+            except PageNotAnInteger:
+                product=paginator.page(1)
+            except EmptyPage:
+                product=paginator.page(paginator.num_pages)
+                
+            
             context={
-                "products":products,
+                "products":product,
                 'categories':categories        
                 }
-            return render(request,'shop.html',context)
+            return render(request,self.template_name,context)
+        
         products=Product.objects.filter(category__id=cartid,quantity__gte=1)
+        paginator=Paginator(products,self.paginate_by)
+        page=request.GET.get("page")
+            
+        try:
+            product=paginator.page(page)
+        except PageNotAnInteger:
+            product=paginator.page(1)
+        except EmptyPage:
+            product=paginator.page(paginator.num_pages)
         context={
-            'products':products,
+            'products':product,
             'categories':categories
         }
-        return render(request,'shop.html',context)
+        return render(request,self.template_name,context)
         
             
 
@@ -47,8 +84,18 @@ class MyCart(LoginRequiredMixin,View):
     def get(self,request,username):
         if request.user.username != username:
             return redirect("product:home")
+        carts=Cart.objects.filter(username=username)
+        paginator = Paginator(carts,3)
+        page=request.GET.get("get")
+        try:
+            cart=paginator.page(page)
+        except PageNotAnInteger:
+            cart=paginator.page(1)
+        except EmptyPage:
+            cart=paginator.page(paginator.num_pages)
+        
         context={
-            "carts":Cart.objects.filter(username=username)
+            "carts":cart
         }
         return render(request,"my_cart.html",context)
 
@@ -112,31 +159,6 @@ class MyWishList(LoginRequiredMixin,View):
         return render(request,"wishlist.html",context)
     
         
-# class ProductDetailView(DetailView):
-#     model=Product
-#     template_name="product_detail.html"
-    
-#     def get_context_data(self, **kwargs):
-#         pk=self.kwargs.get("pk")
-#         context=super().get_context_data(**kwargs)
-#         context["likes"]=Like.objects.filter(product__id=pk,is_liked=True)
-#         context["form"]=CommentCreationForm()
-#         context["comments"]=Comment.objects.filter(product__pk=pk)
-#         return context
-    
-#     def post(self,request,*args,**kwargs):
-#         pk=self.kwargs.get("pk")
-#         product=Product.objects.get(id=pk)
-#         form=CommentCreationForm(request.POST)
-#         if form.is_valid():
-#             comment=form.save(commit=False)
-#             comment.user=request.user
-#             comment.product=product
-#             comment.save()
-#             messages.add_message(request,messages.INFO,"Succesfuly added your Comment ")
-            
-#         return HttpResponseRedirect(reverse("product:product_detail",kwargs={"pk":pk}))
-            
 
 class ProductDetailView(View):
     
@@ -183,16 +205,7 @@ class ProductDetailView(View):
             return JsonResponse({"comment": new_comment})
 
 
-            
-        
-        
-    
-    
-    
 
-
-   
-        
     
 class DeleteCart(LoginRequiredMixin,View):
     def get(self,request,username,cid):
@@ -209,6 +222,8 @@ class Search(View):
         products=Product.objects.filter(name__icontains=name)
         if not products:
             return HttpResponse('Not Found')
+
+
         return render(request,"search.html",{"products":products})
 
 @login_required
@@ -248,19 +263,7 @@ class MyProductView(LoginRequiredMixin,View):
         }
         return render (request,"my_products.html",context)
     
-    
 
-# def edit_product(request, pk):
-#     product = Product.objects.get(pk=pk)
-#     form = ProductCreationForm(instance=product)
-#     if request.method == 'POST':
-#         data=json.loads(request.body)
-#         form = ProductCreationForm(data, instance=product) 
-#         if form.is_valid():
-#             form.save()
-#             return JsonResponse({'message': 'Product updated successfully'})
-
-#     return render(request, "edit_product.html", {"form": form,"id":pk})
 
 
 
@@ -292,13 +295,6 @@ class EditProductView(LoginRequiredMixin,View,UserPassesTestMixin):
             return JsonResponse({'message': 'Product updated successfully'})
         
         
-def try_ajax(request):
-    d = {'testing': list({1, 2, 3})}
-    if request.method=="POST":
-        data = json.loads(request.body)
-        print(data)
-        
-    return JsonResponse(data=d)
 
 
 

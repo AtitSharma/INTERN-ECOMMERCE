@@ -6,7 +6,7 @@
 <p id="hello" style="text-align:center;"></p>
 
 
-{{}}
+
   
 <form id="formdata" method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -53,9 +53,9 @@
             'X-CSRFToken': getCSRFToken()
           },
           success: function(response) {
-            console.log(response);
-            console.log(response.message)
             $("#hello").text(response.message);
+            $("#hello").show();
+            $("#hello").slideUp(4000).delay(4000)
           },
           error : function(){
             $("#hello").text("Unable to update !!!");

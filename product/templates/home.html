@@ -85,4 +85,6 @@
         <script src="{% static 'js/owl.carousel.min.js' %}"></script>
         <script src="{% static 'js/main.js' %}"></script>
 
+        {% include 'pagination.html' with page=products %}
+
 {% endblock content %}

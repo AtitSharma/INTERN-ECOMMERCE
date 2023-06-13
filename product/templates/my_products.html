@@ -20,7 +20,7 @@
                 </ul>
                 </div>
                 <div class="featured__item__text">
-                    <h6><a href="#">Product Name : {{cart.product.name}}</a></h6>
+                    <h6><a href="{% url 'product:product_detail' product.id %}">Product Name : {{product.name}}</a></h6>
                     Description: {{product.description}} <br>
                     Seller: {{product.user.username }}  <br>  
                     Category:{{product.category}}<br>  
