@@ -19,7 +19,7 @@
                     </ul>
                 </div>
                 <div class="featured__item__text">
-                    <h6><a href="#">Product Name : {{wish.product.name}}</a></h6>
+                    <h6><a href="{% url 'product:product_detail' wish.product.id %}">Product Name : {{wish.product.name}}</a></h6>
                     Description: {{wish.product.description}} <br>
                     Seller: {{wish.product.user.username }}  <br>  
                     Category:{{wish.product.category}}<br>  

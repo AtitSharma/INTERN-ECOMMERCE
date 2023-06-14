@@ -2,8 +2,6 @@
 {% load static %}
 {% block content %}
 
-
-        <!-- Hero Section Begin -->
         <section class="hero hero-normal">
             <div class="container">
                 <div class="row">
@@ -45,7 +43,7 @@
             </div>
         </section>
         {% for message in messages %}
-        <p style="text-align:center;">{{message}}</p>
+        <p id="demo" style="text-align:center;">{{message}}</p>
         {% endfor %}
         <div class="row featured__filter">
             {% for product in products %}
@@ -75,16 +73,13 @@
             {% endfor %}
         </div>
  
-
-        <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
-        <script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
-        <script src="{% static 'js/jquery-ui.min.js' %}"></script>
-        <script src="{% static 'js/jquery.slicknav.js' %}"></script>
-        <script src="{% static 'js/mixitup.min.js' %}"></script>
-        <script src="{% static 'js/owl.carousel.min.js' %}"></script>
         <script src="{% static 'js/main.js' %}"></script>
 
         {% include 'pagination.html' with page=products %}
+
+        <script>
+            
+            $("#demo").slideUp(4000).delay(4000);
+        </script>
 
 {% endblock content %}

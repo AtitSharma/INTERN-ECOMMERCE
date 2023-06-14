@@ -21,7 +21,7 @@
                 </ul>
                 </div>
                 <div class="featured__item__text">
-                    <h6><a href="#">Product Name : {{cart.product.name}}</a></h6>
+                    <h6><a href="{% url 'product:product_detail' cart.product.id %}">Product Name : {{cart.product.name}}</a></h6>
                     Description: {{cart.product.description}} <br>
                     Seller: {{cart.product.user.username }}  <br>  
                     Category:{{cart.product.category}}<br>  
@@ -69,7 +69,7 @@
 
     </script>
 
-    
+    {% include 'pagination.html' with page=carts %}
 
         
 

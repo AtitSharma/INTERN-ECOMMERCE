@@ -67,7 +67,7 @@ class SuccessView(TemplateView,View):
                 cart.delete()
                 messages.add_message(request,messages.INFO,"Sucessfully  purchased the product")
                 return redirect("product:home")
-            except:
+            except Cart.DoesNotExist:
                 quantity=1
                 if product.quantity < quantity:
                     messages.add_message(request,messages.INFO,"Cannot purchased the product please Select less amout")

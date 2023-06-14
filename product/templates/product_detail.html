@@ -2,10 +2,9 @@
 {% load static %}
 {% block content %}
 <style>
-    .comment-section {
-        margin-top: 100px;
+    
 
-    }
+    
     #msg{
         background-color:green;
         color:black;
@@ -17,11 +16,11 @@
 {% endfor %}
 <p id="msg" class="sticky-top " style="z-index: 500; text-align:center;"></p>
 
-<div class="row">
+<div class="row" style="align-items:center;">
     <div class="col-lg-9">
         <div class="row featured__filter">
             <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat" >
-                <div class="featured__item" style="margin:center;">
+                <div class="featured__item">
                     <div class="featured__item__pic set-bg" id='abcimage'
                         data-setbg="{% if product.image1 %}{{product.image1.url}}{% endif %}">
                         <ul class="featured__item__pic__hover">
@@ -64,28 +63,29 @@
         <p> Login to Like and Comment </p>
         {% endif %}
     </div>
-    <div class="col-lg-3 comment-section">
+    
         
-    <div id="comments-container"> 
-        {% for comment in comments %}
-        <div class="comment-class"
-            
-            <h4>From :{{ comment.user.username }} </h4><br>
-            email : {{ comment.user}} <br>
-            Comment: {{ comment.details }}<br>
-            {% if request.user == comment.user %}
-            <a href="#" onclick="deletefunction({{comment.id}})">
-            <button class="btn btn-danger ">Delete</button>
-            </a>
-            {% endif %}
-            <br>
-            
-        </div>
-        {% endfor %}
-       
-    </div>
+    
 </div>
-<p id="helio"> Comment </p>
+<div id="comments-container" > 
+    {% for comment in comments %}
+    <div class="comment-class"
+        
+        <h4>From :{{ comment.user.username }} </h4><br>
+        email : {{ comment.user}} <br>
+        Comment: {{ comment.details }}<br>
+        {% if request.user == comment.user %}
+        <a href="#" onclick="deletefunction({{comment.id}})">
+        <button class="btn btn-danger ">Delete</button>
+        </a>
+        {% endif %}
+        <br>
+        
+    </div>
+    {% endfor %}
+   
+</div>
+
 
 <script src="{% static 'js/main.js' %}"></script>
 
@@ -169,7 +169,7 @@
                 $(location).closest('div').html("");
                 $("#msg").html("Deleted Your Comment !!!")
                 $("#msg").show();
-                $("#msg").slideUp(4000).delay(4000);
+                $("#msg").slideUp(3000).delay(3000);
             },
             error : function(){
                 console.log("Errors")

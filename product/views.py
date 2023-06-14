@@ -17,7 +17,7 @@ from django.views.generic import ListView
 
 class HomeView(View):  
     def get(self,request):
-        products=Product.objects.filter(quantity__gte=1)
+        products=Product.objects.filter(quantity__gte=1,status="available").order_by("-price")
         paginator=Paginator(products,3)
         page=request.GET.get("page")
         try:
@@ -84,9 +84,9 @@ class MyCart(LoginRequiredMixin,View):
     def get(self,request,username):
         if request.user.username != username:
             return redirect("product:home")
-        carts=Cart.objects.filter(username=username)
+        carts=Cart.objects.filter(username=username,product__quantity__gte=1,product__status="available")
         paginator = Paginator(carts,3)
-        page=request.GET.get("get")
+        page=request.GET.get("page")
         try:
             cart=paginator.page(page)
         except PageNotAnInteger:
@@ -104,6 +104,9 @@ class MyCart(LoginRequiredMixin,View):
 def add_to_cart(request,pk,quantity=1):
     username=request.user.username
     product=Product.objects.get(pk=pk)
+    if product.quantity <=1 or product.status=="sold":
+        messages.add_message(request,messages.INFO,"Product Not available now !!")
+        return redirect("product:home")
     price=Product.objects.get(pk=pk).price
     total_price=quantity*price
     if Cart.objects.filter(username=username,product__name=product).exists():
@@ -257,7 +260,7 @@ class DeleteCommentView(LoginRequiredMixin,View):
         
 class MyProductView(LoginRequiredMixin,View):
     def get(self,request,*args,**kwargs):
-        products=Product.objects.filter(user__username=request.user.username,quantity__gte=1)
+        products=Product.objects.filter(user__username=request.user.username)
         context={
             "products":products,
         }
