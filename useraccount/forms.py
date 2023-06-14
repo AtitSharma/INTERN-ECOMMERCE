@@ -34,11 +34,14 @@ class UserRegisterForm(forms.Form):
             raise forms.ValidationError("Email already exits !!")
         return email
         
-    def save(self):
+    def save(self,commit=True):
         username=self.cleaned_data.get("username")
         password=self.cleaned_data.get("password2")
         email=self.cleaned_data.get("email")
-        user=User.objects.create_user(username=username,password=password,email=email)         
+        user = User(username=username, email=email)
+        user.set_password(password)
+        if commit:
+            user.save()
         return user
 
 

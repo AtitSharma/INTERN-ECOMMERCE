@@ -95,34 +95,45 @@ class MyCart(LoginRequiredMixin,View):
             cart=paginator.page(paginator.num_pages)
         
         context={
-            "carts":cart
+            "carts":cart,
         }
         return render(request,"my_cart.html",context)
 
 
-@login_required
-def add_to_cart(request,pk,quantity=1):
-    username=request.user.username
-    product=Product.objects.get(pk=pk)
-    if product.quantity <=1 or product.status=="sold":
-        messages.add_message(request,messages.INFO,"Product Not available now !!")
-        return redirect("product:home")
-    price=Product.objects.get(pk=pk).price
-    total_price=quantity*price
-    if Cart.objects.filter(username=username,product__name=product).exists():
-        cart_item=Cart.objects.get(username=username,product__name=product)
-        cart_item.quantity +=quantity
-        cart_item.total_price += total_price
-        if product.quantity < cart_item.quantity:
-            messages.add_message(request,messages.INFO,"Cannot Items more than available ")
+class AddToCart(LoginRequiredMixin,View):
+    def get(self,request,*args,**kwargs):
+        pk=self.kwargs.get("pk")
+        quantity=1
+        username=request.user.username
+        product=Product.objects.get(pk=pk)
+        if product.quantity <=1 or product.status=="sold":
+            messages.add_message(request,messages.INFO,"Product Not available now !!")
             return redirect("product:home")
-        cart_item.save()
-        messages.add_message(request,messages.INFO,f"Sucessfully Updated Cart {product}")
+        price=Product.objects.get(pk=pk).price
+        total_price=quantity*price
+        if Cart.objects.filter(username=username,product__name=product).exists():
+            cart_item=Cart.objects.get(username=username,product__name=product)
+            cart_item.quantity +=quantity
+            cart_item.total_price += total_price
+            if product.quantity < cart_item.quantity:
+                messages.add_message(request,messages.INFO,"Cannot Items more than available ")
+                return redirect("product:home")
+            cart_item.save()
+            messages.add_message(request,messages.INFO,f"Sucessfully Updated Cart {product}")
+            return HttpResponseRedirect(reverse("product:my_cart",args=(request.user.username,)))
+        else:
+            Cart.objects.create(username=username,product=product,quantity=quantity,total_price=total_price)
+            messages.add_message(request,messages.INFO,f"Sucessfully Added {product} in Cart")
         return HttpResponseRedirect(reverse("product:my_cart",args=(request.user.username,)))
-    else:
-        Cart.objects.create(username=username,product=product,quantity=quantity,total_price=total_price)
-        messages.add_message(request,messages.INFO,f"Sucessfully Added {product} in Cart")
-    return HttpResponseRedirect(reverse("product:my_cart",args=(request.user.username,)))
+    
+        
+        
+        
+        
+    
+        
+        
+        
     
 class SellItem(LoginRequiredMixin,View):
     def get(self,request):
@@ -241,6 +252,7 @@ def like(request,pid):
     return HttpResponseRedirect(reverse("product:product_detail",kwargs={"pk":pid}))
 
 class DeleteCommentView(LoginRequiredMixin,View):
+    
     def get(self,request,*args,**kwargs):
         comment_id=self.kwargs.get("id")
         comments=Comment.objects.filter(id=comment_id)
@@ -255,9 +267,7 @@ class DeleteCommentView(LoginRequiredMixin,View):
         messages.add_message(request,messages.INFO,"Successfully deleted the comment")
         return redirect("product:product_detail",pk=comment.product.id)
     
-    
-        
-        
+       
 class MyProductView(LoginRequiredMixin,View):
     def get(self,request,*args,**kwargs):
         products=Product.objects.filter(user__username=request.user.username)
@@ -270,7 +280,7 @@ class MyProductView(LoginRequiredMixin,View):
 
 
 
-class EditProductView(LoginRequiredMixin,View,UserPassesTestMixin):
+class EditProductView(UserPassesTestMixin, LoginRequiredMixin,View):
     
     def test_func(self,*args,**kwargs):
         pk=self.kwargs.get("pk")
@@ -279,15 +289,10 @@ class EditProductView(LoginRequiredMixin,View,UserPassesTestMixin):
     
     def get(self,request,*args,**kwargs):
         pk=self.kwargs.get("pk")
-        if self.test_func(pk):
-            pk=self.kwargs.get("pk")
-            product = Product.objects.get(pk=pk)
-            form = ProductCreationForm(instance=product)   
-            return render(request,"edit_product.html",{"form":form,"id":pk})
-        else:
-            messages.add_message(request,messages.INFO,"Unable to edit other products")
-            return redirect("product:home")
-    
+        product = Product.objects.get(pk=pk)
+        form = ProductCreationForm(instance=product)   
+        return render(request,"edit_product.html",{"form":form,"id":pk})
+
     def post(self,request,*kwargs,**args):
         data=json.loads(request.body)
         pk=self.kwargs.get("pk")
@@ -304,7 +309,31 @@ class EditProductView(LoginRequiredMixin,View,UserPassesTestMixin):
       
         
     
+class IncreaseCart(LoginRequiredMixin,View):
+    def get(self,request,*args,**kwargs):
+        cid=self.kwargs.get("cid")
+        cart=Cart.objects.get(pk=cid)
+        product_quantity=cart.product.quantity
+        product_price=cart.product.price
+        if product_quantity <= cart.quantity:
+            return JsonResponse({"message":"Select less Amounts "})
+        cart.quantity +=1
+        cart.total_price = int(product_price) * int(cart.quantity)
+        cart.save()
+        return JsonResponse({"quantity":cart.quantity,"total_price":cart.total_price})
         
         
+        
+class DecreaseCart(LoginRequiredMixin,View):
+    def get(self,request,*args,**kwargs):
+        cid=self.kwargs.get("cid")
+        cart=Cart.objects.get(pk=cid)
+        product_price=cart.product.price
+        if   cart.quantity <=1:
+            return JsonResponse({"message":"Cart Item Should be Positive  "})
+        cart.quantity -=1
+        cart.total_price = int(product_price) * int(cart.quantity)
+        cart.save()
+        return JsonResponse({"quantity":cart.quantity,"total_price":cart.total_price})
 
 

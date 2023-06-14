@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     *****************************************************<br>
+    {% if inventories %}
     {% for inventory in inventories %}
        Seller Name: {{inventory.user}}<br>
        Buyer Name : {{ inventory.buyer_user }}<br>
@@ -13,6 +14,10 @@
     *****************************************************<br>
     {% endfor %}
     <br>
+    {% else %}
+    <h4>Inventory-Empty   <br>Maybe your product havent bought by anyone</h4>
+    {% endif %}
+
     
 
 {% endblock content %}

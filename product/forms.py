@@ -15,3 +15,4 @@ class CommentCreationForm(forms.ModelForm):
     class Meta:
         model=Comment
         fields=["details"]
+

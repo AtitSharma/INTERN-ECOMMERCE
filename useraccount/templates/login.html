@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
+{% for message in messages %}
+    <p style="text-align:center;">{{message}}</p>
+{% endfor %}
 <div style="text-align:center;">
 <form  method="post">
     {% csrf_token %}
