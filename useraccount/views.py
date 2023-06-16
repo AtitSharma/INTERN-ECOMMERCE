@@ -2,7 +2,6 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import logout,login,authenticate,get_user_model
 from useraccount.forms import UserRegisterForm,UserLoginForm
 from django.views import View
-from . tokens import AccountActiveTokenGenerator
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -16,8 +15,12 @@ from django.core.mail import EmailMessage
 def activate(request,uidb64,token):
     User=get_user_model()
     
+    print(uidb64)
+    print(token)
+    
     try:
         uid=force_str(urlsafe_base64_decode(uidb64))
+        print(uid)
         user=User.objects.get(pk=uid)
     except :
         user=None

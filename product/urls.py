@@ -1,8 +1,8 @@
 from django.urls import path
 from product.views import (Shop,SellItem,ProductDetailView,Search,EditProductView,
                            AddToCart,add_to_wishlist,DeleteCart,MyProductView,
-                           MyWishList,HomeView,MyCart,like,DeleteCommentView,
-                           IncreaseCart,DecreaseCart)
+                           MyWishList,HomeView,MyCart,like,DeleteCommentView,UpdateCart,
+                           )
 
 
 
@@ -23,8 +23,8 @@ urlpatterns = [
     path("delete-comment/<int:id>/",DeleteCommentView.as_view(),name="delete-comment"),
     path("my_product/",MyProductView.as_view(),name="my_products"),
     path("edit-product/<int:pk>/",EditProductView.as_view(),name="edit_product"),
-    path("increase-cart/<int:cid>/",IncreaseCart.as_view(),name="increase"),
-    path("decrease-cart/<int:cid>/",DecreaseCart.as_view(),name="decrease"),
+    path("update-cart/<int:cid>/",UpdateCart.as_view(),name="update_cart")
+
     
 
 

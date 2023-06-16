@@ -4,7 +4,7 @@
 {% for message in messages %}
     <p id="demo1" style="text-align:center;">{{message}}</p>
 {% endfor %}
-<p  id="msg" class="sticky-top " style="z-index: 500; text-align:center; color:red"></p>
+<p  id="msg" class="sticky-top " style="z-index: 500; text-align:center; color:green"></p>
 <div class="row featured__filter">
     
     {% for cart in carts %}
@@ -23,15 +23,25 @@
                     Description: {{cart.product.description}} <br>
                     Seller: {{cart.product.user.username }}  <br>  
                     Category:{{cart.product.category}}<br>  
-                    Quantity Available : {{cart.product.quantity}} <br>
-                    Quantity Available Added In Cart : 
+                    Quantity Available : <p id="available{{forloop.counter}}"> {{cart.product.quantity}} </p><br>
+                    
 
                     <br>
-                     <button onclick="decreased({{cart.id}},{{forloop.counter}})"id="decs{{forloop.counter}}"> ⛔️</button><br> <p id="val{{forloop.counter}}">{{cart.quantity}} </p><button onclick="increased({{cart.id}},{{forloop.counter}})"id="inc{{forloop.counter}}">➕</button><br>
+                     {% comment %} <button onclick="decreased({{forloop.counter}})"id="decs{{forloop.counter}}"> ⛔️</button><br> {% endcomment %}
+                     <form id="quantity_form{{forloop.counter}}">
                     
-                    Status: {{cart.product.status}} <br>
-                    Price Choosen :<p class="hello{{forloop.counter}}"> {{ cart.total_price }}    </p> 
-                    <h5>Price: Rs.{{ cart.product.price }}</h5><br>
+                     <label for="quantity">Quantity Available Added In Cart : </label><br>
+                      <input id="val{{forloop.counter}}" name="quantity" value="{{cart.quantity}}" type="number"><br>
+                      {% comment %} <button onclick="increased({{forloop.counter}})"id="inc{{forloop.counter}}">➕</button><br> {% endcomment %}
+                      
+                      <button> <a  href="#" onclick="submit({{cart.id}},{{forloop.counter}})">Submit </a> </button>
+                     </form>
+                   
+                      Status: {{cart.product.status}} <br>
+                      Price Choosen :<p id="hello{{forloop.counter}}"> {{ cart.total_price }}    </p> 
+                      <h6> Price per piece<h5 id="price{{forloop.counter}}">{{ cart.product.price }}</h5></h6><br>
+
+                      
                 </div>
                 
             </div>
@@ -44,6 +54,7 @@
 <script>
     function clicked(cid) {
         event.preventDefault();
+        console.log("Hello")
         if (confirm("Do you really want to delete the product from cart?")) {
           var username = "{{ request.user.username }}";
           var cid = cid;
@@ -69,42 +80,76 @@
         
           $("#demo1").slideUp(4000).delay(3000)
 
-        function increased(cid,pid){
-          event.preventDefault();
-          var increaseURL = "{% url 'product:increase' 0  %}".replace("0",cid);
-          $.ajax({
-            url:increaseURL,
-            type: "GET",
-            contentType:"application/json",
-            success : function(response){
-              $("#msg").html(response.message);
-              $(`#val${pid}`).html(response.quantity);
-              $(`.hello${pid}`).html(response.total_price);
-              $("#msg").show()
-              $("#msg").slideUp(4000).delay(4000)
+
+
+
+         function submit(cid,pid){
+            event.preventDefault();
+            var formdata=$(`#quantity_form${pid}`).serializeArray();
+            var jsondata={};
+            for(var i =0;i<formdata.length;i++){
+              var item= formdata[i];
+              jsondata[item.name]=item.value;
             }
-          });
-
-        }
-        function decreased(cid,pid){
-          event.preventDefault();
-          var decreasedURL="{% url 'product:decrease' 0 %}".replace("0",cid);
-          $.ajax({
-
-              url:decreasedURL,
-              type:"GET",
+            var SubmitURL="{% url 'product:update_cart' 0 %}".replace('0',cid);
+            var jsonDataStr = JSON.stringify(jsondata);
+            console.log(formdata)
+            $.ajax({
+              url:SubmitURL,
+              type:'POST',
               contentType:"application/json",
-              success: function(response){
-                $("#msg").html(response.message);
-                $(`#val${pid}`).html(response.quantity);
-                $(`.hello${pid}`).html(response.total_price);
+              data: jsonDataStr,
+              headers :{ 
+                'X-CSRFToken':getCSRFToken(),
+
+              },
+              success : function(response){
+                $(`#hello${pid}`).html(response.newprice)
+                $("#msg").html(response.message)
                 $("#msg").show()
-                $("#msg").slideUp(3000).delay(3000)
+                $("#msg").slideUp(4000).delay(3000)
               }
 
-          });
 
-        }
+            });
+
+            
+       
+
+            
+          } 
+
+          {% comment %} function increased(pid){
+
+            var quantity = parseInt($(`#val${pid}`).html())
+            var quantity_available = parseInt($(`#available${pid}`).html())
+            if(quantity>=quantity_available){
+              return;
+            }
+            var price_perpiece = parseInt($(`#price${pid}`).html())
+            quantity= quantity+1
+            var total_price = quantity * price_perpiece;
+            $(`#hello${pid}`).html(total_price);
+            
+            $(`#val${pid}`).html(quantity) ;
+
+
+          }
+          function decreased(pid){
+            
+            var quantity = parseInt($(`#val${pid}`).html())
+            if(quantity<=1){
+              return
+            }
+            var price_perpiece = parseInt($(`#price${pid}`).html())
+            quantity= quantity-1
+            var total_price = quantity * price_perpiece;
+            $(`#hello${pid}`).html(total_price);
+            
+            $(`#val${pid}`).html(quantity) ;
+            
+          } {% endcomment %}
+
         
 
     </script>

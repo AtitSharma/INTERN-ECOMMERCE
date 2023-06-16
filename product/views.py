@@ -1,4 +1,5 @@
 
+from typing import Optional
 from django.shortcuts import render,redirect,reverse
 from product.models import Category,Cart,Product,Wishlist,Like,Comment
 from django.contrib.auth.decorators import  login_required
@@ -306,34 +307,27 @@ class EditProductView(UserPassesTestMixin, LoginRequiredMixin,View):
 
 
 
-      
+class UpdateCart(LoginRequiredMixin,View):
+    
+    def post(self,request,*args,**kwargs):
+        data=json.loads(request.body)
+        pk=self.kwargs.get("cid")
+        cart=Cart.objects.get(pk=pk)
+        available_quantity=int(cart.product.quantity)
+        price=int(cart.product.price)
+        quantity=int(data.get("quantity"))
+        if quantity > available_quantity:
+            return JsonResponse({"message":"Choose Less Amounts "})
+        if quantity <=0:
+            return JsonResponse({"message":"Choose Greater Amounts "})
+        else:
+            cart.quantity = quantity
+            cart.save()
+            cart.total_price = cart.quantity * price
+            cart.save()
+            return JsonResponse({"message":"success","newprice":cart.total_price})
+            
+        
+     
         
     
-class IncreaseCart(LoginRequiredMixin,View):
-    def get(self,request,*args,**kwargs):
-        cid=self.kwargs.get("cid")
-        cart=Cart.objects.get(pk=cid)
-        product_quantity=cart.product.quantity
-        product_price=cart.product.price
-        if product_quantity <= cart.quantity:
-            return JsonResponse({"message":"Select less Amounts "})
-        cart.quantity +=1
-        cart.total_price = int(product_price) * int(cart.quantity)
-        cart.save()
-        return JsonResponse({"quantity":cart.quantity,"total_price":cart.total_price})
-        
-        
-        
-class DecreaseCart(LoginRequiredMixin,View):
-    def get(self,request,*args,**kwargs):
-        cid=self.kwargs.get("cid")
-        cart=Cart.objects.get(pk=cid)
-        product_price=cart.product.price
-        if   cart.quantity <=1:
-            return JsonResponse({"message":"Cart Item Should be Positive  "})
-        cart.quantity -=1
-        cart.total_price = int(product_price) * int(cart.quantity)
-        cart.save()
-        return JsonResponse({"quantity":cart.quantity,"total_price":cart.total_price})
-
-
