@@ -1,7 +1,8 @@
-e-commerce
+e-commerce_env
 .env
 .DS_Store
 media/
 db.sqlite3
 staticfiles
 .vscode/
+__pycache__

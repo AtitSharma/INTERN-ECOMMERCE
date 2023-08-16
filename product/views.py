@@ -34,20 +34,17 @@ class HomeView(View):
         }
         
         return render(request,"home.html",context)
+   
     
 class Shop(ListView):
     paginate_by=3
-
     template_name="shop.html"
-    
     def get(self,request,cartid=None):
         categories=Category.objects.all()
         if cartid==None:
             products=Product.objects.filter(quantity__gte=1)
-            
             paginator=Paginator(products,self.paginate_by)
             page=request.GET.get("page")
-            
             try:
                 product=paginator.page(page)
             except PageNotAnInteger:
@@ -308,7 +305,6 @@ class EditProductView(UserPassesTestMixin, LoginRequiredMixin,View):
 
 
 class UpdateCart(LoginRequiredMixin,View):
-    
     def post(self,request,*args,**kwargs):
         data=json.loads(request.body)
         pk=self.kwargs.get("cid")
@@ -322,10 +318,11 @@ class UpdateCart(LoginRequiredMixin,View):
             return JsonResponse({"message":"Choose Greater Amounts "})
         else:
             cart.quantity = quantity
-            cart.save()
             cart.total_price = cart.quantity * price
             cart.save()
             return JsonResponse({"message":"success","newprice":cart.total_price})
+        
+    
             
         
      

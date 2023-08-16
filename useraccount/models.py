@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager
+from datetime import timedelta
+from django.utils import timezone
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+import uuid
 
 # Create your models here.
 
@@ -37,6 +41,9 @@ class CustomUserManager(BaseUserManager):
 
 
 
+
+
+
 class User(AbstractUser):
     email=models.EmailField(unique=True)
     USERNAME_FIELD='email'
@@ -50,6 +57,22 @@ class User(AbstractUser):
     
     
     
+    
+    
+class Token(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    key=models.CharField(max_length=40, primary_key=True,unique=True)
+    created=models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return str(self.key)
+    
+    def is_valid(self):
+        expiration_time = self.created + timedelta(minutes=1)
+        return timezone.now() <= expiration_time
+    
+    def save(self,*args,**kwargs):
+        self.key=str(uuid.uuid4())
+        super().save(*args,**kwargs)
     
     
 

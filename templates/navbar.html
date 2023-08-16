@@ -26,7 +26,8 @@
                         <div class="header__top__right__language">
                             <img src="img/language.png" alt="">
                             <div>English</div>
-                            <span class="arrow_carrot-down"></span>
+                            <span class="arrow_carrot-down">
+                        </span>
                         </div>
                         {% if request.user.is_authenticated %}
                         <div class="header__top__right__auth">
@@ -39,9 +40,13 @@
                             
                         </div>
                         <div class="header__top__right__auth">
-                            <a href="{% url 'inventory:my_inv' %}"> Inventory </a>
-                            
+                            <a href="{% url 'inventory:my_inv' %}"> Inventory </a>         
                         </div>
+                        <div class="header__top__right__auth">
+                            <a href="{% url 'user:password_change' %}"> Change Password </a>         
+                        </div>
+           
+                        
                         {% else %}
                         
                         <div class="header__top__right__auth">

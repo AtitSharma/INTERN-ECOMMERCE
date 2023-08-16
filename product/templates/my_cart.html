@@ -4,7 +4,7 @@
 {% for message in messages %}
     <p id="demo1" style="text-align:center;">{{message}}</p>
 {% endfor %}
-<p  id="msg" class="sticky-top " style="z-index: 500; text-align:center; color:green"></p>
+<p  id="msg" class="sticky-top " style="z-index: 500; text-align:center; color:black; background-color:green; "></p>
 <div class="row featured__filter">
     
     {% for cart in carts %}
@@ -107,7 +107,7 @@
                 $(`#hello${pid}`).html(response.newprice)
                 $("#msg").html(response.message)
                 $("#msg").show()
-                $("#msg").slideUp(4000).delay(3000)
+                $("#msg").slideUp(5000).delay(1100)
               }
 
 
